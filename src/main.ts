@@ -11,13 +11,23 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.setGlobalPrefix('api/v1/ecb-exhange-rates');
 
-  const config = new DocumentBuilder()
-    .setTitle('ECB Exchange rates REST API')
-    .setDescription('ECB Exchange rates REST API')
-    .setVersion('1.0')
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  if (process.env.NODE_ENV === 'production') {
+    app.enableCors();
+  }
+
+  if (process.env.NODE_ENV === 'development') {
+    const config = new DocumentBuilder()
+      .setTitle('ECB Exchange rates REST API')
+      .setDescription('ECB Exchange rates REST API')
+      .setVersion('1.0')
+      .addBearerAuth(
+        { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+        'JWT',
+      )
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, document);
+  }
 
   await app.listen(3000);
 }
