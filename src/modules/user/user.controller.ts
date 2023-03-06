@@ -52,4 +52,14 @@ export class UserController {
   getProfile(@Request() req) {
     return req.user;
   }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT')
+  @ApiOperation({
+    summary: 'Return all users in system, except the logged one',
+  })
+  @Get('list')
+  async getUsers(@Request() req): Promise<UserEntity[]> {
+    return await this.userService.find(req.user.userId);
+  }
 }

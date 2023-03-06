@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Equal, Repository } from 'typeorm';
+import { Equal, Not, Repository } from 'typeorm';
 import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entity/user.entity';
 
@@ -10,6 +10,18 @@ export class UserService {
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
   ) {}
+
+  async find(userId: string): Promise<UserEntity[]> {
+    return await this.userRepository.find({
+      select: {
+        record_id: true,
+        user_name: true,
+        user_pass: false,
+        is_admin: true,
+      },
+      where: [{ record_id: Not(Equal(userId)) }],
+    });
+  }
 
   async findOne(userName: string): Promise<UserEntity> {
     return await this.userRepository.findOne({
