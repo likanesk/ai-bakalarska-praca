@@ -29,6 +29,14 @@ export class UserService {
     });
   }
 
+  async findOneById(recordId: string): Promise<UserEntity> {
+    return await this.userRepository.findOne({
+      where: {
+        record_id: Equal(recordId),
+      },
+    });
+  }
+
   async createUser(userDto: UserDto): Promise<UserEntity> {
     if (
       (await this.userRepository.count({
@@ -45,6 +53,28 @@ export class UserService {
       const errorMessage = `The user with same username: ${userDto.username} already exists in db!`;
       console.error(errorMessage);
       throw new HttpException(errorMessage, HttpStatus.CONFLICT);
+    }
+  }
+
+  async deleteUser(recordId: string): Promise<any> {
+    const user = await this.findOneById(recordId);
+    if (user) {
+      try {
+        await this.userRepository.remove(user);
+        return {
+          message: `The user with UUID: ${recordId} was removed from db!`,
+        };
+      } catch (error) {
+        console.error(error);
+        throw new HttpException(
+          'Can not remove record from db!',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    } else {
+      const errorMessage = `The user with UUID: ${recordId} doesn't exists in db!`;
+      console.error(errorMessage);
+      throw new HttpException(errorMessage, HttpStatus.NOT_FOUND);
     }
   }
 }

@@ -1,6 +1,10 @@
 import {
   Controller,
+  Delete,
   Get,
+  HttpException,
+  HttpStatus,
+  ParseUUIDPipe,
   Post,
   Query,
   Request,
@@ -61,5 +65,37 @@ export class UserController {
   @Get('list')
   async getUsers(@Request() req): Promise<UserEntity[]> {
     return await this.userService.find(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT')
+  @ApiOperation({
+    summary:
+      "ADMIN user can delete user from the system. He can't delete itself!",
+  })
+  @ApiQuery({
+    name: 'recordId',
+    type: 'string',
+    required: true,
+  })
+  @Delete('delete')
+  async deleteUser(
+    @Query('recordId', new ParseUUIDPipe()) recordId: string,
+    @Request() req,
+  ): Promise<any> {
+    const user = await this.userService.findOne(req.user.username);
+    if (user.is_admin === true) {
+      if (recordId !== req.user.userId) {
+        return await this.userService.deleteUser(recordId);
+      } else {
+        const errorMessage = `Even you are ADMIN, you can't remove yourself from the system! Only other users!`;
+        console.error(errorMessage);
+        throw new HttpException(errorMessage, HttpStatus.CONFLICT);
+      }
+    } else {
+      const errorMessage = `As you are not ADMIN, you can't remove user or yourself from the system!`;
+      console.error(errorMessage);
+      throw new HttpException(errorMessage, HttpStatus.CONFLICT);
+    }
   }
 }
