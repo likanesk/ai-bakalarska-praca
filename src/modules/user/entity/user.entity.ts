@@ -1,6 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsOptional, IsString, IsUUID, Length } from 'class-validator';
-import { Column, Entity, Generated, Index, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Generated,
+  Index,
+  OneToMany,
+  PrimaryColumn,
+} from 'typeorm';
+import { UserActivityEntity } from './user-activity.entity';
 
 @Entity({ name: 'user' })
 export class UserEntity {
@@ -29,4 +37,10 @@ export class UserEntity {
   @Column({ type: 'boolean', nullable: false, default: false })
   @IsOptional()
   is_admin: boolean;
+
+  @OneToMany(
+    () => UserActivityEntity,
+    (userActivityEntity) => userActivityEntity.user,
+  )
+  activities: UserActivityEntity[];
 }
