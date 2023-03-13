@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
+import { EcbExchangeRatesModule } from './modules/ecb-exchange-rates/ecb-exchange-rates.module';
 import { UserActivityMiddleware } from './modules/user/middleware/user-activity.middleware';
 import { JwtService } from '@nestjs/jwt';
 
@@ -43,6 +44,7 @@ import { JwtService } from '@nestjs/jwt';
     }),
     AuthModule,
     UserModule,
+    EcbExchangeRatesModule,
   ],
   controllers: [AppController],
   providers: [JwtService],

@@ -37,6 +37,20 @@ CREATE INDEX "IDX_94e582e0906233a30cd8a2c635" ON ecb_exchange_rates.user_activit
 ALTER TABLE ecb_exchange_rates.user_activity ADD CONSTRAINT "FK_5bd7b71ddd4f10e20b0916d0343" FOREIGN KEY ("user_record_id") REFERENCES ecb_exchange_rates."user"(record_id);
 GRANT DELETE, INSERT, UPDATE, TRUNCATE, SELECT, TRIGGER, REFERENCES ON TABLE ecb_exchange_rates."user_activity" TO ecberdbuser;
 
+-- 
+DROP TABLE IF EXISTS ecb_exchange_rates.exchange_rates;
+CREATE TABLE ecb_exchange_rates.exchange_rates (
+	record_id uuid NOT NULL DEFAULT uuid_generate_v4(),
+	created timestamptz NOT NULL,
+	currency varchar(3) NOT NULL,
+	currency_alias varchar(24) NULL,
+	spot numeric(12, 6) NOT NULL DEFAULT '0'::numeric,
+	CONSTRAINT "PK_b33b7ba91eb8a985246fa615fa8" PRIMARY KEY (record_id)
+);
+CREATE INDEX "IDX_198437652f8d73a86b774e2e71" ON ecb_exchange_rates.exchange_rates USING btree (created);
+CREATE INDEX "IDX_2badd7fe7d9fce6aa939a3f9d9" ON ecb_exchange_rates.exchange_rates USING btree (currency);
+GRANT DELETE, INSERT, UPDATE, TRUNCATE, SELECT, TRIGGER, REFERENCES ON TABLE ecb_exchange_rates.exchange_rates TO ecberdbuser;
+
 --
 -- fill start-up data to the db
 INSERT INTO ecb_exchange_rates."user" (record_id,user_name,user_pass,is_admin) VALUES

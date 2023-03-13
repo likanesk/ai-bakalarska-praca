@@ -9,4 +9,9 @@ export const configuration = () => ({
     dbName: process.env.DB_NAME,
     dbSchema: process.env.DB_SCHEMA,
   },
+  api: {
+    ecbExchangeRates: {
+      eurofxrefDaily: 'http://www.ecb.int/stats/eurofxref/eurofxref-daily.xml',
+    },
+  },
 });
