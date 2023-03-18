@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EcbExchangeRatesTask } from './cron/ecb-exchange-rates-task.service';
 import { EcbExchangeRatesSaveService } from './ecb-exchange-rates-save.service';
 import { EcbExchangeRatesController } from './ecb-exchange-rates.controller';
+import { EcbExchangeRatesService } from './ecb-exchange-rates.service';
 import { EcbExchangeRatesEntity } from './entity/ecb-exchange-rates.entity';
 
 @Module({
@@ -14,8 +15,16 @@ import { EcbExchangeRatesEntity } from './entity/ecb-exchange-rates.entity';
     HttpModule,
     ScheduleModule.forRoot(),
   ],
-  providers: [EcbExchangeRatesSaveService, EcbExchangeRatesTask],
+  providers: [
+    EcbExchangeRatesService,
+    EcbExchangeRatesSaveService,
+    EcbExchangeRatesTask,
+  ],
   controllers: [EcbExchangeRatesController],
-  exports: [EcbExchangeRatesSaveService, EcbExchangeRatesTask],
+  exports: [
+    EcbExchangeRatesService,
+    EcbExchangeRatesSaveService,
+    EcbExchangeRatesTask,
+  ],
 })
 export class EcbExchangeRatesModule {}
