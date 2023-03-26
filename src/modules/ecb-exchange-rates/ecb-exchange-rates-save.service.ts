@@ -120,7 +120,7 @@ export class EcbExchangeRatesSaveService {
     return responseData.length > 0
       ? responseData
       : this.customThrowErrorHttpException(
-          'Today rates are alredy stored in db!',
+          'Today rates are already stored in db!',
           HttpStatus.CONFLICT,
         );
   }

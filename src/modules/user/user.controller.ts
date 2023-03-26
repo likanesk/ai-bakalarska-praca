@@ -64,7 +64,14 @@ export class UserController {
   })
   @Get('list')
   async getUsers(@Request() req): Promise<UserEntity[]> {
-    return await this.userService.find(req.user.userId);
+    const user = await this.userService.findOne(req.user.username);
+    if (user.is_admin === true) {
+      return await this.userService.find(req.user.userId);
+    } else {
+      const errorMessage = `As you are not ADMIN, you can't display system users!`;
+      console.error(errorMessage);
+      throw new HttpException(errorMessage, HttpStatus.CONFLICT);
+    }
   }
 
   @UseGuards(JwtAuthGuard)
