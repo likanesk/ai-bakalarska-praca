@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Equal, Not, Repository } from 'typeorm';
 import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entity/user.entity';
+import { UserPackage } from './type/enum/package.enum';
 
 @Injectable()
 export class UserService {
@@ -37,7 +38,10 @@ export class UserService {
     });
   }
 
-  async createUser(userDto: UserDto): Promise<UserEntity> {
+  async createUser(
+    userDto: UserDto,
+    packageAlias: UserPackage,
+  ): Promise<UserEntity> {
     if (
       (await this.userRepository.count({
         where: {
@@ -45,9 +49,15 @@ export class UserService {
         },
       })) === 0
     ) {
+      const UserPackageKey =
+        Object.keys(UserPackage)[
+          Object.values(UserPackage).indexOf(packageAlias)
+        ];
+
       const user = new UserEntity();
       user.user_name = userDto.username;
       user.user_pass = userDto.password;
+      user.requests = +UserPackageKey.replace('requests', '');
       return await this.userRepository.save(user);
     } else {
       const errorMessage = `The user with same username: ${userDto.username} already exists in db!`;

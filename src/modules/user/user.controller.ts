@@ -21,6 +21,7 @@ import {
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entity/user.entity';
+import { UserPackage } from './type/enum/package.enum';
 import { UserService } from './user.service';
 
 @ApiTags('User')
@@ -42,9 +43,13 @@ export class UserController {
     type: 'string',
     required: true,
   })
+  @ApiQuery({ name: 'packageAlias', required: true, enum: UserPackage })
   @Post('create')
-  async createUser(@Query() userDto: UserDto): Promise<UserEntity> {
-    return await this.userService.createUser(userDto);
+  async createUser(
+    @Query() userDto: UserDto,
+    @Query('packageAlias') packageAlias: UserPackage,
+  ): Promise<UserEntity> {
+    return await this.userService.createUser(userDto, packageAlias);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -38,7 +38,7 @@ export class UserActivityEntity {
   @IsNotEmpty()
   route: string;
 
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_record_id', referencedColumnName: 'record_id' })
   user: UserEntity;
 }

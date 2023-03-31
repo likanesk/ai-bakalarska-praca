@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, IsUUID, Length } from 'class-validator';
+import {
+  IsEmail,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Length,
+} from 'class-validator';
 import {
   Column,
   Entity,
@@ -37,6 +44,12 @@ export class UserEntity {
   @Column({ type: 'boolean', nullable: false, default: false })
   @IsOptional()
   is_admin: boolean;
+
+  @ApiProperty({ required: true, type: 'int4' })
+  @Index()
+  @Column({ type: 'int4', nullable: false, default: 10 })
+  @IsInt()
+  requests: number;
 
   @OneToMany(
     () => UserActivityEntity,
