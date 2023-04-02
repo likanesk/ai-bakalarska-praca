@@ -8,10 +8,11 @@ import { EcbExchangeRatesSaveService } from './ecb-exchange-rates-save.service';
 import { EcbExchangeRatesController } from './ecb-exchange-rates.controller';
 import { EcbExchangeRatesService } from './ecb-exchange-rates.service';
 import { EcbExchangeRatesEntity } from './entity/ecb-exchange-rates.entity';
+import { LogEntity } from '../system/entity/log.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([EcbExchangeRatesEntity]),
+    TypeOrmModule.forFeature([EcbExchangeRatesEntity, LogEntity]),
     HttpModule,
     ScheduleModule.forRoot(),
   ],

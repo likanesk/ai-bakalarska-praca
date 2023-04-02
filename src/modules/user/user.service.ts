@@ -4,12 +4,15 @@ import { Equal, Not, Repository } from 'typeorm';
 import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entity/user.entity';
 import { UserPackage } from './type/enum/package.enum';
+import { LogEntity } from '../system/entity/log.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    @InjectRepository(LogEntity)
+    public logRepository: Repository<LogEntity>,
   ) {}
 
   async find(userId: string): Promise<UserEntity[]> {
@@ -61,7 +64,21 @@ export class UserService {
       return await this.userRepository.save(user);
     } else {
       const errorMessage = `The user with same username: ${userDto.username} already exists in db!`;
-      console.error(errorMessage);
+
+      //  log error to DB Table
+      userDto.password = '?????????';
+      const errorLog = new LogEntity();
+      errorLog.message = {
+        class: 'UserService',
+        function: 'createUser',
+        input: {
+          userDto: JSON.stringify(userDto),
+        },
+        message: errorMessage,
+        status: HttpStatus.CONFLICT,
+      };
+      this.logRepository.save(errorLog);
+
       throw new HttpException(errorMessage, HttpStatus.CONFLICT);
     }
   }
@@ -75,7 +92,19 @@ export class UserService {
           message: `The user with UUID: ${recordId} was removed from db!`,
         };
       } catch (error) {
-        console.error(error);
+        //  log error to DB Table
+        const errorLog = new LogEntity();
+        errorLog.message = {
+          class: 'UserService',
+          function: 'deleteUser',
+          input: {
+            recordId: recordId,
+          },
+          message: JSON.stringify(error),
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+        };
+        this.logRepository.save(errorLog);
+
         throw new HttpException(
           'Can not remove record from db!',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -83,7 +112,20 @@ export class UserService {
       }
     } else {
       const errorMessage = `The user with UUID: ${recordId} doesn't exists in db!`;
-      console.error(errorMessage);
+
+      //  log error to DB Table
+      const errorLog = new LogEntity();
+      errorLog.message = {
+        class: 'UserService',
+        function: 'deleteUser',
+        input: {
+          recordId: recordId,
+        },
+        message: errorMessage,
+        status: HttpStatus.NOT_FOUND,
+      };
+      this.logRepository.save(errorLog);
+
       throw new HttpException(errorMessage, HttpStatus.NOT_FOUND);
     }
   }

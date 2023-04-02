@@ -10,12 +10,15 @@ import { xml2json } from 'xml-js';
 
 import { EcbExchangeRatesEntity } from './entity/ecb-exchange-rates.entity';
 import { EcbCurrency } from './type/enum/currency.enum';
+import { LogEntity } from '../system/entity/log.entity';
 
 @Injectable()
 export class EcbExchangeRatesSaveService {
   constructor(
     @InjectRepository(EcbExchangeRatesEntity)
     private ecbExchangeRatesEntityRepository: Repository<EcbExchangeRatesEntity>,
+    @InjectRepository(LogEntity)
+    private logRepository: Repository<LogEntity>,
     private dataSource: DataSource,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
@@ -29,7 +32,17 @@ export class EcbExchangeRatesSaveService {
         )
         .pipe(
           catchError((error: AxiosError) => {
-            console.error(error.response.data);
+            //  log error to DB Table
+            const errorLog = new LogEntity();
+            errorLog.message = {
+              class: 'EcbExchangeRatesSaveService',
+              function: 'storeDailyEcbER',
+              input: {},
+              message: JSON.stringify(error.response.data),
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+            };
+            this.logRepository.save(errorLog);
+
             throw error.response.data;
           }),
         ),
@@ -43,9 +56,21 @@ export class EcbExchangeRatesSaveService {
       const baseElements = dataObject.elements[0].elements[2].elements[0];
       return await this.saveRatesToDb(baseElements);
     } catch (error) {
-      console.error(error);
+      const errorMessage = 'Problem parsing xml data from ECB SOAP API!';
+
+      //  log error to DB Table
+      const errorLog = new LogEntity();
+      errorLog.message = {
+        class: 'EcbExchangeRatesSaveService',
+        function: 'saveRates',
+        input: { data: data },
+        message: errorMessage,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+      };
+      this.logRepository.save(errorLog);
+
       this.customThrowErrorHttpException(
-        'Problem parsing xml data from ECB SOAP API!',
+        errorMessage,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -59,9 +84,21 @@ export class EcbExchangeRatesSaveService {
         },
       });
     } catch (error) {
-      console.error(error);
+      const errorMessage = 'Can not retrieve today rates data from db!';
+
+      //  log error to DB Table
+      const errorLog = new LogEntity();
+      errorLog.message = {
+        class: 'EcbExchangeRatesSaveService',
+        function: 'getTodayRates',
+        input: { date: date },
+        message: errorMessage,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+      };
+      this.logRepository.save(errorLog);
+
       this.customThrowErrorHttpException(
-        'Can not retrieve today rates data from db!',
+        errorMessage,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -82,9 +119,21 @@ export class EcbExchangeRatesSaveService {
       await manager.save(ecbExchangeRatesEntity);
       return ecbExchangeRatesEntity;
     } catch (error) {
-      console.error(error);
+      const errorMessage = 'Can not create record rate data to the db!';
+
+      //  log error to DB Table
+      const errorLog = new LogEntity();
+      errorLog.message = {
+        class: 'EcbExchangeRatesSaveService',
+        function: 'saveRateToDb',
+        input: { created: created, currency: currency, spot: spot },
+        message: errorMessage,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+      };
+      this.logRepository.save(errorLog);
+
       this.customThrowErrorHttpException(
-        'Can not create record rate data to the db!',
+        errorMessage,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -110,26 +159,56 @@ export class EcbExchangeRatesSaveService {
           }
         })
         .catch((error) => {
-          console.error(error);
+          const errorMessage =
+            'Check input data if they are successufully parsed, impossible save to DB!';
+
+          //  log error to DB Table
+          const errorLog = new LogEntity();
+          errorLog.message = {
+            class: 'EcbExchangeRatesSaveService',
+            function: 'saveRatesToDb',
+            input: { data: data },
+            message: errorMessage,
+            status: HttpStatus.INTERNAL_SERVER_ERROR,
+          };
+          this.logRepository.save(errorLog);
+
           this.customThrowErrorHttpException(
-            'Check input data if they are successufully parsed, impossible save to DB!',
+            errorMessage,
             HttpStatus.INTERNAL_SERVER_ERROR,
           );
         });
     }
+
     return responseData.length > 0
       ? responseData
-      : this.customThrowErrorHttpException(
-          'Today rates are already stored in db!',
-          HttpStatus.CONFLICT,
-        );
+      : this.errorTodayRatesStoredInDb(data);
+  }
+
+  private errorTodayRatesStoredInDb(data: any) {
+    const errorMessage = 'Today rates are already stored in db!';
+
+    //  log error to DB Table
+    const errorLog = new LogEntity();
+    errorLog.message = {
+      class: 'EcbExchangeRatesSaveService',
+      function: 'saveRatesToDb => errorTodayRatesStoredInDb',
+      input: { data: data },
+      message: errorMessage,
+      status: HttpStatus.CONFLICT,
+    };
+    this.logRepository.save(errorLog);
+
+    return this.customThrowErrorHttpException(
+      errorMessage,
+      HttpStatus.CONFLICT,
+    );
   }
 
   private customThrowErrorHttpException(
     errorMessage: string,
     statusCode: number,
   ): any {
-    console.error(errorMessage);
     return throwError(() => new HttpException(errorMessage, statusCode));
   }
 }

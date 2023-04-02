@@ -51,10 +51,14 @@ export class UserActivityService {
       },
     });
 
-    if (activities < user.requests) {
+    if (user.requests === 0) {
       return true;
     } else {
-      return false;
+      if (activities < user.requests) {
+        return true;
+      } else {
+        return false;
+      }
     }
   }
 }

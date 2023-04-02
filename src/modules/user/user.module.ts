@@ -6,9 +6,12 @@ import { UserActivityController } from './user-activity.controller';
 import { UserActivityService } from './user-activity.service';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
+import { LogEntity } from '../system/entity/log.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity, UserActivityEntity])],
+  imports: [
+    TypeOrmModule.forFeature([UserEntity, UserActivityEntity, LogEntity]),
+  ],
   providers: [UserService, UserActivityService],
   controllers: [UserController, UserActivityController],
   exports: [UserService, UserActivityService],

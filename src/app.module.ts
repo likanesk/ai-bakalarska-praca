@@ -11,6 +11,7 @@ import { UserModule } from './modules/user/user.module';
 import { EcbExchangeRatesModule } from './modules/ecb-exchange-rates/ecb-exchange-rates.module';
 import { UserActivityMiddleware } from './modules/user/middleware/user-activity.middleware';
 import { JwtService } from '@nestjs/jwt';
+import { SystemModule } from './modules/system/system.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { JwtService } from '@nestjs/jwt';
     AuthModule,
     UserModule,
     EcbExchangeRatesModule,
+    SystemModule,
   ],
   controllers: [AppController],
   providers: [JwtService],

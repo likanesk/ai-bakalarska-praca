@@ -1,6 +1,5 @@
 import {
   ForbiddenException,
-  HttpException,
   HttpStatus,
   Injectable,
   NestMiddleware,
@@ -8,12 +7,14 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response, NextFunction } from 'express';
 import { UserActivityService } from '../user-activity.service';
+import { LogService } from 'src/modules/system/log.service';
 
 @Injectable()
 export class UserActivityMiddleware implements NestMiddleware {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userActivityService: UserActivityService,
+    private readonly logService: LogService,
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
@@ -33,9 +34,20 @@ export class UserActivityMiddleware implements NestMiddleware {
           req.baseUrl,
         );
       } else {
-        throw new ForbiddenException(
-          'You reached your monthly requests limit for your package.',
-        );
+        const errorMessage =
+          'You reached your monthly requests limit for your package.';
+
+        await this.logService.storeErrorLogToDb({
+          class: 'UserActivityMiddleware',
+          function: 'use',
+          input: {
+            userUUID: decodedJwtAccessToken.sub,
+          },
+          message: errorMessage,
+          status: HttpStatus.FORBIDDEN,
+        });
+
+        throw new ForbiddenException(errorMessage);
       }
     }
     next();

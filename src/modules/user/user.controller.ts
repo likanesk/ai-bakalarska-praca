@@ -23,6 +23,7 @@ import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entity/user.entity';
 import { UserPackage } from './type/enum/package.enum';
 import { UserService } from './user.service';
+import { LogEntity } from '../system/entity/log.entity';
 
 @ApiTags('User')
 @Controller('user')
@@ -74,7 +75,20 @@ export class UserController {
       return await this.userService.find(req.user.userId);
     } else {
       const errorMessage = `As you are not ADMIN, you can't display system users!`;
-      console.error(errorMessage);
+
+      //  log error to DB Table
+      const errorLog = new LogEntity();
+      errorLog.message = {
+        class: 'UserController',
+        function: 'getUsers',
+        input: {
+          userId: req.user.userId,
+        },
+        message: errorMessage,
+        status: HttpStatus.CONFLICT,
+      };
+      this.userService.logRepository.save(errorLog);
+
       throw new HttpException(errorMessage, HttpStatus.CONFLICT);
     }
   }
@@ -101,12 +115,38 @@ export class UserController {
         return await this.userService.deleteUser(recordId);
       } else {
         const errorMessage = `Even you are ADMIN, you can't remove yourself from the system! Only other users!`;
-        console.error(errorMessage);
+
+        //  log error to DB Table
+        const errorLog = new LogEntity();
+        errorLog.message = {
+          class: 'UserController',
+          function: 'deleteUser',
+          input: {
+            recordId: recordId,
+          },
+          message: errorMessage,
+          status: HttpStatus.CONFLICT,
+        };
+        this.userService.logRepository.save(errorLog);
+
         throw new HttpException(errorMessage, HttpStatus.CONFLICT);
       }
     } else {
       const errorMessage = `As you are not ADMIN, you can't remove user or yourself from the system!`;
-      console.error(errorMessage);
+
+      //  log error to DB Table
+      const errorLog = new LogEntity();
+      errorLog.message = {
+        class: 'UserController',
+        function: 'deleteUser',
+        input: {
+          recordId: recordId,
+        },
+        message: errorMessage,
+        status: HttpStatus.CONFLICT,
+      };
+      this.userService.logRepository.save(errorLog);
+
       throw new HttpException(errorMessage, HttpStatus.CONFLICT);
     }
   }
