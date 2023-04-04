@@ -15,6 +15,11 @@ export class UserService {
     public logRepository: Repository<LogEntity>,
   ) {}
 
+  /**
+   * Find all system users except the user itself
+   * @param userId user UUID
+   * @returns Promise<UserEntity[]>
+   */
   async find(userId: string): Promise<UserEntity[]> {
     return await this.userRepository.find({
       select: {
@@ -27,12 +32,22 @@ export class UserService {
     });
   }
 
+  /**
+   * Find user by his username
+   * @param userName username
+   * @returns Promise<UserEntity>
+   */
   async findOne(userName: string): Promise<UserEntity> {
     return await this.userRepository.findOne({
       where: [{ user_name: userName }],
     });
   }
 
+  /**
+   * Find user by identificator
+   * @param recordId user UUID
+   * @returns Promise<UserEntity>
+   */
   async findOneById(recordId: string): Promise<UserEntity> {
     return await this.userRepository.findOne({
       where: {
@@ -41,6 +56,12 @@ export class UserService {
     });
   }
 
+  /**
+   * Create and save new user to db
+   * @param userDto userDto
+   * @param packageAlias type of user package
+   * @returns Promise<UserEntity>
+   */
   async createUser(
     userDto: UserDto,
     packageAlias: UserPackage,
@@ -83,6 +104,11 @@ export class UserService {
     }
   }
 
+  /**
+   * Delete user from db
+   * @param recordId user UUID
+   * @returns Promise<any>
+   */
   async deleteUser(recordId: string): Promise<any> {
     const user = await this.findOneById(recordId);
     if (user) {

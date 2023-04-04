@@ -13,6 +13,12 @@ export class EcbExchangeRatesService {
     private ecbExchangeRatesEntityRepository: Repository<EcbExchangeRatesEntity>,
   ) {}
 
+  /**
+   * Find all ecb exchange rates filtered by creation date and currency alias from db
+   * @param created the date when records were created
+   * @param currencyAlias ecb currency alias
+   * @returns Promise<any>
+   */
   async findAll(created: string, currencyAlias: EcbCurrency): Promise<any> {
     return this.ecbExchangeRatesEntityRepository.findBy({
       created: created
@@ -22,6 +28,11 @@ export class EcbExchangeRatesService {
     });
   }
 
+  /**
+   * Find specific ecb exchange rate by UUID
+   * @param recordId ecb exchange rate UUID
+   * @returns Promise<EcbExchangeRatesEntity>
+   */
   async findById(recordId: string): Promise<EcbExchangeRatesEntity> {
     return this.ecbExchangeRatesEntityRepository.findOne({
       where: { record_id: recordId },

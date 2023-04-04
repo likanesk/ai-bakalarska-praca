@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { EcbExchangeRatesSaveService } from '../ecb-exchange-rates-save.service';
 
+/**
+ * EcbExchangeRatesTask is used to automatically store ECB exchange rates on a daily basis
+ */
 @Injectable()
 export class EcbExchangeRatesTask {
   constructor(

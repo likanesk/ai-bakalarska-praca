@@ -6,6 +6,9 @@ import { LogEntity } from 'src/modules/system/entity/log.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+/**
+ * LocalStrategy uses PassportStrategy to verify the user's existence by username and password during login
+ */
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(
@@ -16,6 +19,13 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     super();
   }
 
+  /**
+   * Depending on the user's username and password, it evaluates whether the user's
+   * record is in the user's db
+   * @param userName username
+   * @param userPass user password
+   * @returns Promise<any>
+   */
   async validate(userName: string, userPass: string): Promise<any> {
     const user = await this.authService.validateUser(userName, userPass);
     if (!user) {

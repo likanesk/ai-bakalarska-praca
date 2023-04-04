@@ -23,6 +23,14 @@ use the docker-compse.yml file to install:
 
 [DEV REST API web interface](http://localhost:3000/api)
 
+## Documentation generation
+
+```bash
+$ npx @compodoc/compodoc -p tsconfig.json -s
+```
+
+[Open generated documentation](http://localhost:8080)
+
 ## License
 
 Nest is [MIT licensed](LICENSE).

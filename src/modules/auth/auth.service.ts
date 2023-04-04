@@ -11,6 +11,12 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  /**
+   * Validate user by username and password
+   * @param userName username
+   * @param userPass user password
+   * @returns Promise<any>
+   */
   async validateUser(userName: string, userPass: string): Promise<any> {
     const user = await this.userService.findOne(userName);
     if (user && user.user_pass === userPass) {
@@ -20,6 +26,11 @@ export class AuthService {
     return null;
   }
 
+  /**
+   * Log user into the system
+   * @param user user
+   * @returns Promise<{ access_token: string }>
+   */
   async login(user: any) {
     const payload = { username: user.user_name, sub: user.record_id };
 

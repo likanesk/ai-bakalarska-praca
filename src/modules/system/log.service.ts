@@ -10,6 +10,11 @@ export class LogService {
     private logRepository: Repository<LogEntity>,
   ) {}
 
+  /**
+   * Find all logs from db filtered by creation date
+   * @param created the date when records were created
+   * @returns Promise<any>
+   */
   async findAll(created: string): Promise<any> {
     return this.logRepository.findBy({
       created: created
@@ -18,6 +23,11 @@ export class LogService {
     });
   }
 
+  /**
+   * Store error log to db by data
+   * @param data data
+   * @returns Promise<LogEntity>
+   */
   async storeErrorLogToDb(data: any) {
     const errorLog = new LogEntity();
     errorLog.message = data;

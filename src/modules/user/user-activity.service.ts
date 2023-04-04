@@ -13,6 +13,11 @@ export class UserActivityService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
+  /**
+   * Find all actual user activities from db
+   * @param userId user UUID
+   * @returns Promise<UserActivityEntity[]>
+   */
   async findAll(userId: any): Promise<UserActivityEntity[]> {
     return await this.userActivityRepository.find({
       where: [{ user_record_id: userId }],
@@ -20,6 +25,12 @@ export class UserActivityService {
     });
   }
 
+  /**
+   * Create and save new user activity to db
+   * @param userUUID user UUID
+   * @param route endpoint route
+   * @returns Promise<UserActivityEntity>
+   */
   async createUserActivity(
     userUUID: any,
     route: string,
@@ -30,6 +41,11 @@ export class UserActivityService {
     return await this.userActivityRepository.save(userActivityEntity);
   }
 
+  /**
+   * Find all actual user activities in actual month from db
+   * @param userUUID user UUID
+   * @returns Promise<boolean>
+   */
   async findActivitiesInActualMonth(userUUID: any): Promise<boolean> {
     const date = new Date(),
       y = date.getFullYear(),

@@ -17,6 +17,12 @@ export class UserActivityMiddleware implements NestMiddleware {
     private readonly logService: LogService,
   ) {}
 
+  /**
+   * Automatically create an activity if the monthly limit of the user package for requests have not expired
+   * @param req request
+   * @param res response
+   * @param next next function
+   */
   async use(req: Request, res: Response, next: NextFunction) {
     if (req.headers.authorization) {
       const decodedJwtAccessToken: any = this.jwtService.decode(

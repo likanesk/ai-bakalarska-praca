@@ -24,6 +24,10 @@ export class EcbExchangeRatesSaveService {
     private readonly configService: ConfigService,
   ) {}
 
+  /**
+   * Store daily ecb exchange rates
+   * @returns Promise<EcbExchangeRatesEntity>
+   */
   async storeDailyEcbER(): Promise<EcbExchangeRatesEntity> {
     const { data } = await firstValueFrom(
       this.httpService
@@ -50,6 +54,11 @@ export class EcbExchangeRatesSaveService {
     return this.saveRates(data);
   }
 
+  /**
+   * Parse data from xml to json and save ecb exchange rates into db
+   * @param data data
+   * @returns Promise<EcbExchangeRatesEntity>
+   */
   private async saveRates(data: string): Promise<EcbExchangeRatesEntity> {
     try {
       const dataObject = JSON.parse(xml2json(data));
@@ -76,6 +85,11 @@ export class EcbExchangeRatesSaveService {
     }
   }
 
+  /**
+   * Get number of today ecb exchange rates
+   * @param date date
+   * @returns Promise<number>
+   */
   private async getTodayRates(date: string): Promise<number> {
     try {
       return await this.ecbExchangeRatesEntityRepository.count({
@@ -104,6 +118,14 @@ export class EcbExchangeRatesSaveService {
     }
   }
 
+  /**
+   * Save rate to db
+   * @param manager entity manager
+   * @param created date of publication of ecb exchange rates by ecb
+   * @param currency type of currency
+   * @param spot current exchange rate
+   * @returns Promise<EcbExchangeRatesEntity>
+   */
   private async saveRateToDb(
     manager: EntityManager,
     created: string,
@@ -139,6 +161,11 @@ export class EcbExchangeRatesSaveService {
     }
   }
 
+  /**
+   * Save rates to db if they have not been updated
+   * @param data data
+   * @returns Promise<EcbExchangeRatesEntity>
+   */
   private async saveRatesToDb(data: any): Promise<EcbExchangeRatesEntity> {
     const responseData: EcbExchangeRatesEntity[] = [];
     if ((await this.getTodayRates(data.attributes.time)) === 0) {
@@ -185,6 +212,11 @@ export class EcbExchangeRatesSaveService {
       : this.errorTodayRatesStoredInDb(data);
   }
 
+  /**
+   * Report an error for multiple db updates
+   * @param data data
+   * @returns any
+   */
   private errorTodayRatesStoredInDb(data: any) {
     const errorMessage = 'Today rates are already stored in db!';
 
@@ -205,6 +237,12 @@ export class EcbExchangeRatesSaveService {
     );
   }
 
+  /**
+   * Throw a custom error http exception with error message and status code
+   * @param errorMessage error message
+   * @param statusCode number representating error
+   * @returns any
+   */
   private customThrowErrorHttpException(
     errorMessage: string,
     statusCode: number,
