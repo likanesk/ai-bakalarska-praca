@@ -57,21 +57,20 @@ GRANT DELETE, INSERT, UPDATE, TRUNCATE, SELECT, TRIGGER, REFERENCES ON TABLE ecb
 
 
 -- ecb_exchange_rates.log definition
+DROP TYPE if exists ecb_exchange_rates.log_level_enum;
 DROP TABLE IF EXISTS ecb_exchange_rates.log;
+CREATE TYPE ecb_exchange_rates.log_level_enum AS ENUM ('error', 'info');
 CREATE TABLE ecb_exchange_rates.log (
 	record_id uuid NOT NULL DEFAULT uuid_generate_v4(),
 	created timestamp NOT NULL DEFAULT now(),
-	log_level ecb_exchange_rates.log_log_level_enum NOT NULL DEFAULT 'error'::ecb_exchange_rates.log_log_level_enum,
+	log_level ecb_exchange_rates.log_level_enum NOT NULL DEFAULT 'error',
 	message text NOT NULL,
 	CONSTRAINT "PK_143b158600638071e74ffad3db8" PRIMARY KEY (record_id)
 );
 CREATE INDEX "IDX_78373526f54f8cfd7d9ec70051" ON ecb_exchange_rates.log USING btree (created);
 GRANT DELETE, INSERT, UPDATE, TRUNCATE, SELECT, TRIGGER, REFERENCES ON TABLE ecb_exchange_rates."log" TO ecberdbuser;
 
-
 --
 -- fill start-up data to the db
 INSERT INTO ecb_exchange_rates."user" (record_id,user_name,user_pass, is_admin, requests) VALUES
 	 ('d123fea3-b610-47cf-a2d0-f628f8ef81f7','adrian.ihring@gmail.com','a+J}pF$+2}u+Y3hn', 'y', 10);
-
-

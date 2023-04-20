@@ -14,7 +14,7 @@ $ npm install
 
 ## Running the app
 
-use the docker-compse.yml file to install:
+use the docker-compose.yml file to install:
 
 - database postgresql
 - microservice "ecb-exchange-rates-rest-api" and pick up dev or prod variant
